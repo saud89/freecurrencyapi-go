@@ -1,3 +1,3 @@
-module github.com/everapihq/freecurrencyapi-go
+module github.com/saud89/freecurrencyapi-go
 
 go 1.20
