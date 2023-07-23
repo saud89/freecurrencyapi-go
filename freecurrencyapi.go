@@ -1,8 +1,6 @@
 package freecurrencyapi
 
 import (
-	"bytes"
-	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -23,19 +21,25 @@ func httpClient() *http.Client {
 	return client
 }
 
-func apiCall(endpoint string, params ...map[string]string) []byte {
+func apiCall(endpoint string, params map[string]string) []byte {
 	if len(apikey) == 0 {
 		log.Fatalf("No API key provided!")
 	}
 
-	jsonParams, err := json.Marshal(params)
-
-	req, err := http.NewRequest("GET", BaseUrl+endpoint, bytes.NewBuffer(jsonParams))
+	req, err := http.NewRequest("GET", BaseUrl+endpoint, nil)
 	if err != nil {
 		log.Fatalf("Error Occurred. %+v", err)
 	}
+	q := req.URL.Query()
+	q.Add("apikey", apikey)
+	for key, value := range params {
+		q.Add(key, value)
+	}
+	req.URL.RawQuery = q.Encode()
 
-	req.Header.Set("apikey", apikey)
+	//req.Header.Set("apikey", apikey)
+
+	log.Printf("request URL is : %v", req.URL.String())
 
 	response, err := client.Do(req)
 	if err != nil {
@@ -54,7 +58,7 @@ func apiCall(endpoint string, params ...map[string]string) []byte {
 }
 
 func Status() []byte {
-	return apiCall("status")
+	return apiCall("status", nil)
 }
 
 func Currencies(params map[string]string) []byte {
